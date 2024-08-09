@@ -14,11 +14,15 @@ name = "zero2prod"
 actix-web = "4"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 reqwest = { version = "0.11", default-features = false, features = ["json", "rustls-tls", "cookies"] }
+serde = "1.0.115"
+serde_json = "1"
+serde-aux = "4"
+sqlx = { version = "0.7", default-features = false, features = ["runtime-tokio-rustls", "macros", "postgres", "uuid", "chrono", "migrate"] }
+
 
 # [dependencies]
-# serde = "1.0.115"
+
 # config = { version = "0.13", default-features = false, features = ["yaml"] }
-# sqlx = { version = "0.7", default-features = false, features = ["runtime-tokio-rustls", "macros", "postgres", "uuid", "chrono", "migrate"] }
 # uuid = { version = "1", features = ["v4", "serde"] }
 # chrono = { version = "0.4.22", default-features = false, features = ["clock"] }
 # log = "0.4"
@@ -27,7 +31,6 @@ reqwest = { version = "0.11", default-features = false, features = ["json", "rus
 # tracing-bunyan-formatter = "0.3"
 # tracing-log = "0.1.1"
 # thiserror = "1.0.24"
-# serde-aux = "4"
 # unicode-segmentation = "1.7.1"
 # rand = { version = "0.8", features=["std_rng"] }
 # anyhow = "1.0.40"
@@ -38,7 +41,6 @@ reqwest = { version = "0.11", default-features = false, features = ["json", "rus
 # secrecy = { version = "0.8", features = ["serde"] }
 # actix-web-flash-messages = { version = "0.4", features = ["cookies"] }
 # actix-session = { version = "0.7", features = ["redis-rs-tls-session"] }
-# serde_json = "1"
 # actix-web-lab = "0.18"
 
 # [dev-dependencies]
