@@ -1,0 +1,5 @@
+deb https://community-packages.deepin.com/beige/ beige main commercial community
+deb-src https://community-packages.deepin.com/beige/ beige main commercial community
+ 
+deb [by-hash=force] http://mirrors.aliyun.com/deepin/beige/ beige main commercial community
+deb-src http://mirrors.aliyun.com/deepin/beige/ beige main commercial community
