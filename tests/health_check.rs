@@ -4,6 +4,7 @@ use std::{net::TcpListener, vec};
 use uuid::Uuid;
 use zero2prod::{
     configuration::{get_configuration, DatabaseSettings},
+    email_client::EmailClient,
     startup::run,
     telemetry::{get_subscriber, init_subscriber},
 };
@@ -37,7 +38,20 @@ async fn spawn_app() -> TestApp {
     configuration.database.database_name = Uuid::new_v4().to_string();
     let connection_pool = configure_database(&configuration.database).await;
 
-    let server = run(listener, connection_pool.clone()).expect("Failed to bind address");
+    let send_email = configuration
+        .email_client
+        .sender()
+        .expect("Invalid sender email address.");
+    let timeout = configuration.email_client.timeout();
+    let email_client = EmailClient::new(
+        configuration.email_client.base_url,
+        send_email,
+        configuration.email_client.authorization_token,
+        timeout,
+    );
+
+    let server =
+        run(listener, connection_pool.clone(), email_client).expect("Failed to bind address");
     let _ = tokio::spawn(server);
 
     TestApp {
@@ -139,7 +153,6 @@ async fn subscribe_returns_a_400_when_data_is_missing() {
     }
 }
 
-
 #[tokio::test]
 async fn subscribe_returns_a_400_when_fields_are_present_but_invalid() {
     let app = spawn_app().await;
@@ -152,12 +165,12 @@ async fn subscribe_returns_a_400_when_fields_are_present_but_invalid() {
 
     for (body, description) in test_cases {
         let response = client
-           .post(&format!("{}/subscriptions", &app.address))
-           .header("Content-Type", "application/x-www-form-urlencoded")
-           .body(body)
-           .send()
-           .await
-           .expect("Failed to execute request.");
+            .post(&format!("{}/subscriptions", &app.address))
+            .header("Content-Type", "application/x-www-form-urlencoded")
+            .body(body)
+            .send()
+            .await
+            .expect("Failed to execute request.");
 
         assert_eq!(
             400,
