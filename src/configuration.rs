@@ -102,7 +102,7 @@ impl DatabaseSettings {
         let ssl_mode = if self.require_ssl {
             PgSslMode::Require
         } else {
-            PgSslMode::Require
+            PgSslMode::Prefer
         };
         PgConnectOptions::new()
             .host(&self.host)
