@@ -9,7 +9,13 @@ impl SubscriberEmail {
             Ok(Self(s))
         } else {
             Err(format!("{} is not a valid subscriber email.", s))
-        } 
+        }
+    }
+}
+
+impl std::fmt::Display for SubscriberEmail {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.0.fmt(f)
     }
 }
 
@@ -23,9 +29,9 @@ impl AsRef<str> for SubscriberEmail {
 mod tests {
     use super::SubscriberEmail;
     use claims::assert_err;
-    use fake::Fake;
     use fake::faker::internet::en::SafeEmail;
-    
+    use fake::Fake;
+
     #[test]
     fn empty_string_is_rejected() {
         let email = "".to_string();
