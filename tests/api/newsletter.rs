@@ -7,15 +7,14 @@ use crate::helpers::{spawn_app, ConfirmationLinks, TestApp};
 
 #[tokio::test]
 async fn newsletter_are_not_delivered_to_unconfirmed_subscribers() {
-    
     let app = spawn_app().await;
     create_unconfirmed_subscriber(&app).await;
 
     Mock::given(any())
-       .respond_with(ResponseTemplate::new(200))
-       .expect(0)
-       .mount(&app.email_server)
-       .await;
+        .respond_with(ResponseTemplate::new(200))
+        .expect(0)
+        .mount(&app.email_server)
+        .await;
 
     let newsletter_request_body = serde_json::json!({
         "title": "Newsletter title",
@@ -24,7 +23,7 @@ async fn newsletter_are_not_delivered_to_unconfirmed_subscribers() {
             "html": "<p>Newsletter body as HTML</p>"
         }
     });
-    
+
     let response = app.post_newsletters(newsletter_request_body).await;
 
     assert_eq!(response.status().as_u16(), 200);
@@ -32,7 +31,6 @@ async fn newsletter_are_not_delivered_to_unconfirmed_subscribers() {
 
 #[tokio::test]
 async fn newsletter_are_delivered_to_confirmed_subscribers() {
-  
     let app = spawn_app().await;
     create_confirmed_subscriber(&app).await;
 
@@ -111,7 +109,6 @@ async fn newsletters_return_400_for_invalid_data() {
         ),
     ];
     for (invalid_body, error_message) in test_cases {
-  
         let response = reqwest::Client::new()
             .post(&format!("{}/newsletters", &app.address))
             .json(&invalid_body)
@@ -126,4 +123,25 @@ async fn newsletters_return_400_for_invalid_data() {
             error_message
         );
     }
+}
+
+#[tokio::test]
+async fn request_missing_authorization_are_rejected() {
+    let app = spawn_app().await;
+
+    let response = reqwest::Client::new()
+        .post(&format!("{}/newsletters", &app.address))
+        .json(&serde_json::json!({
+             "title": "Newsletter title",
+             "content": {
+                 "text": "Newsletter body as plain text",
+                 "html": "<p>Newsletter body as HTML</p>",
+             }
+        }))
+        .send()
+        .await
+        .expect("Failed to execute request.");
+
+    assert_eq!(response.status().as_u16(), 401);
+    assert_eq!(r#"Basic realm="publish""#, response.headers()["WWW-Authenticate"]);
 }
