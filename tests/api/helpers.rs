@@ -100,6 +100,17 @@ impl TestApp {
             .await
             .unwrap()
     }
+
+    pub async fn get_admin_dashboard(&self) -> String {
+        self.api_client
+            .get(&format!("{}/admin/dashboard", &self.address))
+            .send()
+            .await
+            .expect("Failed to execute request.")
+            .text()
+            .await
+            .unwrap()
+    }
 }
 
 pub async fn spawn_app() -> TestApp {
@@ -123,10 +134,10 @@ pub async fn spawn_app() -> TestApp {
     let _ = tokio::spawn(application.run_until_stopped());
 
     let client = reqwest::Client::builder()
-       .redirect(reqwest::redirect::Policy::none())
-       .cookie_store(true)
-       .build()
-       .unwrap();
+        .redirect(reqwest::redirect::Policy::none())
+        .cookie_store(true)
+        .build()
+        .unwrap();
 
     let test_app = TestApp {
         address: format!("http://localhost:{}", application_port),
