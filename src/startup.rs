@@ -3,7 +3,7 @@ use std::net::TcpListener;
 use crate::configuration::{DatabaseSettings, Settings};
 use crate::email_client::EmailClient;
 use crate::routes::{
-    admin_dashboard, confirm, health_check, home, login, login_form, publish_newsletter, subscribe
+    admin_dashboard, change_password, change_password_form, confirm, health_check, home, log_out, login, login_form, publish_newsletter, subscribe
 };
 use actix_session::storage::RedisSessionStore;
 use actix_session::SessionMiddleware;
@@ -55,7 +55,8 @@ impl Application {
             configuration.application.base_url,
             configuration.application.hmac_secret,
             configuration.redis_uri,
-        ).await?;
+        )
+        .await?;
 
         Ok(Self { port, server })
     }
@@ -93,7 +94,10 @@ pub async fn run(
     let server = HttpServer::new(move || {
         App::new()
             .wrap(message_framework.clone())
-            .wrap(SessionMiddleware::new(redis_store.clone(), secret_key.clone()))
+            .wrap(SessionMiddleware::new(
+                redis_store.clone(),
+                secret_key.clone(),
+            ))
             .wrap(TracingLogger::default())
             .route("/health_check", web::get().to(health_check))
             .route("/subscriptions", web::post().to(subscribe))
@@ -103,6 +107,9 @@ pub async fn run(
             .route("/login", web::get().to(login_form))
             .route("/login", web::post().to(login))
             .route("/admin/dashboard", web::get().to(admin_dashboard))
+            .route("/admin/password", web::get().to(change_password_form))
+            .route("/admin/password", web::post().to(change_password))
+            .route("/admin/logout", web::post().to(log_out))
             .app_data(db_pool.clone())
             .app_data(email_client.clone())
             .app_data(base_url.clone())
