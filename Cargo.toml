@@ -48,6 +48,7 @@ base64 = "0.13.0"
 argon2 = { version = "0.4", features = ["std"] }
 actix-web-flash-messages = { version = "0.4", features = ["cookies"] }
 actix-session = { version = "0.10", features = ["redis-session-rustls"] }
+actix-web-lab = "0.18"
 
 [dev-dependencies]
 once_cell = "1.7.2"
@@ -66,7 +67,7 @@ linkify = "0.9"
 # [dependencies]
 
 # 
-# actix-web-lab = "0.18"
+# 
 
 # [dev-dependencies]
 
